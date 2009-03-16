@@ -4,7 +4,7 @@ package File::Download;
 use vars qw($VERSION @EXPORT_OK %EXPORT_TAGS $DEBUG);
 
 $DEBUG = 0;
-$VERSION = '0.1';
+$VERSION = '0.2';
 
 use base qw(Class::Accessor);
 File::Download->mk_accessors(qw(mode overwrite outfile flength size status user_agent));
@@ -48,7 +48,7 @@ sub download {
     my $res = $ua->request(HTTP::Request->new(GET => $url),
       sub {
 	  $self->{status} = "Beginning download\n";
-	  unless(defined $self->{outfile}) {
+	  unless(defined $file) {
 	      my ($chunk,$res,$protocol) = @_;
 
 	      my $directory;
