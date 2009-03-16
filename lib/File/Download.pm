@@ -21,14 +21,6 @@ use LWP::MediaTypes qw(guess_media_type media_suffix);
 use URI ();
 use HTTP::Date ();
 
-# options:
-# - url
-# - filename
-# - username
-# - password
-# - overwrite
-# - mode ::= a|b
-
 sub DESTROY { }
 
 $SIG{INT} = sub { die "Interrupted\n"; };
@@ -225,41 +217,97 @@ File::Download - Fetch large files from the web
 
 =head1 DESCRIPTION
 
-The B<lwp-download> program will save the file at I<url> to a local
-file.
+This Perl module is largely derived from the B<lwp-download> program 
+that is installed by LWP or the libwww-perl networking package. This
+module abstracts the functionality found in that perl script into a
+module to provide a simpler more developer-friendly interface for 
+downloading large files.
 
-If I<local path> is not specified, then the current directory is
-assumed.
+=head1 USAGE
 
-If I<local path> is a directory, then the basename of the file to save
-is picked up from the Content-Disposition header or the URL of the
-response.  If the file already exists, then B<lwp-download> will
-prompt before it overwrites and will fail if its standard input is not
-a terminal.  This form of invocation will also fail is no acceptable
-filename can be derived from the sources mentioned above.
+=head2 METHODS
 
-If I<local path> is not a directory, then it is simply used as the
-path to save into.
+=over
 
-The I<lwp-download> program is implemented using the I<libwww-perl>
-library.  It is better suited to down load big files than the
-I<lwp-request> program because it does not store the file in memory.
-Another benefit is that it will keep you updated about its progress
-and that you don't have much options to worry about.
+=item B<download($url)>
 
-Use the C<-a> option to save the file in text (ascii) mode.  Might
-make a difference on dosish systems.
+This starts the download process by downloading the file located
+at the specified URL. Return true if download was successful and
+false otherwise.
+
+=item B<status()>
+
+This returns a human readable status message about the download.
+It can be used to determine if the download successed or not.
+
+=item B<user_agent()>
+
+Get or set the current user agent that will be used in 
+conjunctions with downloads.
+
+=cut
+
+=head2 OPTIONS
+
+Each of the following options are also accessors on the main
+File::Download object.
+
+=over
+
+=item B<outfile>
+
+Optional. The name of the file you wish to save the download to.
+
+If you do NOT specific an outfile, then the system will attempt
+to determine the destination file name based upon the requested
+URL.
+
+If you specify a DIRECTORY as an outfile, then the downloaded file
+will be written to that directory with the file name being derived
+from the URL requested.
+
+If you specify a FILE as an outfile, then the downloaded file will
+be saved with that name. You may use both a relative or absolute
+path to the file you wish to save. If a file by that name already
+exists you may need to specify the C<overwrite> option (see below).
+
+=item B<overwrite>
+
+Optional. Boolean value which controls whether or not a previously 
+downloaded file with the same file name will be overwritten.
+Default false.
+
+=item B<mode>
+
+Optional. Allowable values include "a" for ASCII and "b" for binary
+transfer modes. Default is "b".
+
+=item B<username>
+
+Not implemented yet.
+
+=item B<password>
+
+Not implemented yet.
+
+=cut
 
 =head1 EXAMPLE
 
 Fetch the newest and greatest perl version:
 
- $ lwp-download http://www.perl.com/CPAN/src/latest.tar.gz
- Saving to 'latest.tar.gz'...
- 11.4 MB received in 8 seconds (1.43 MB/sec)
+   my $dwn = File::Download->new({
+     file => $argfile,
+     overwrite => 1,
+     mode => ($opt{a} ? 'a' : 'b'),
+   });
+   print "Downloading $url\n";
+   print $dwn->download($url);
+   print $dwn->status();
 
-=head1 AUTHOR
+=head1 AUTHORS and CREDITS
 
-Gisle Aas <gisle@aas.no>
+Gisle Aas <gisle@aas.no> - original B<lwp-download> script
+Byrne Reese <byrne@majordojo.com> - perl module wrapper
 
 =cut
